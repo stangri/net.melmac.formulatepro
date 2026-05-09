@@ -130,6 +130,18 @@ static NSString *autoSizedYArchiveKey = @"autoSizedY";
     return self;
 }
 
+- (void)dealloc
+{
+    // Editor registers self as NSViewFrameDidChangeNotification observer.
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    if (_editor) {
+        [_editor setDelegate:nil];
+        [_editor release];
+    }
+    [_textStorage release];
+    [super dealloc];
+}
+
 - (BOOL)isEditable
 {
     return YES;

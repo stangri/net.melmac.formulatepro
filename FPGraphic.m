@@ -86,6 +86,13 @@ static NSString *versionArchiveKey = @"version";
     return self;
 }
 
+- (void)dealloc
+{
+    [_fillColor release];
+    [_strokeColor release];
+    [super dealloc];
+}
+
 + (FPGraphic *)graphicFromArchivalDictionary:(NSDictionary *)dict
                               inDocumentView:(FPDocumentView *)docView
 {
@@ -98,10 +105,10 @@ static NSString *versionArchiveKey = @"version";
     const unsigned graphicClassesLen =
         sizeof(graphicClasses) / sizeof(graphicClasses[0]);
 
-    Class c;
+    Class c = nil;
     NSString *cstr = [dict objectForKey:@"Graphic Class"];
     BOOL foundClass = NO;
-    
+
     for (unsigned int i = 0; i < graphicClassesLen; i++) {
         if ([[graphicClasses[i] archivalClassName] isEqualToString:cstr]) {
             c = graphicClasses[i];
@@ -109,10 +116,7 @@ static NSString *versionArchiveKey = @"version";
             break;
         }
     }
-    if (!foundClass) {
-        assert(0);
-        return nil;
-    }
+    FPCheck(foundClass, return nil);
 
     return [[[c alloc] initWithArchivalDictionary:dict
                                    inDocumentView:docView] autorelease];
@@ -123,12 +127,10 @@ static NSString *versionArchiveKey = @"version";
 {
     self = [super init];
     if (self) {
-        // for now, we only accept the current version. in the future,
-        // we'll convert old versions to the current version.
-        // TODO(adlr): convert this to user feedback
-        assert([[dict objectForKey:versionArchiveKey] intValue] ==
-               graphicArchiveVersion);
-        
+        int v = [[dict objectForKey:versionArchiveKey] intValue];
+        FPCheck(v == graphicArchiveVersion,
+                { [self release]; return nil; });
+
         _hasPage = YES;
         _docView = docView;
 
@@ -362,28 +364,26 @@ BOOL FPRectSetLeftAbs(NSRect *rect, float left)
         }
         
         if ([theEvent modifierFlags] & NSEventModifierFlagShift) {
-            BOOL didFlip;
             switch (knob) {
                 case UpperRightKnob:
                 case LowerRightKnob:
-                    didFlip = FPRectSetRightAbs(&_bounds,
-                                                _bounds.origin.x +
-                                                (_bounds.size.height /
-                                                 shiftSlope));
+                    (void)FPRectSetRightAbs(&_bounds,
+                                            _bounds.origin.x +
+                                            (_bounds.size.height /
+                                             shiftSlope));
                     break;
                 case LowerLeftKnob:
                 case UpperLeftKnob:
-                    didFlip = FPRectSetLeftAbs(&_bounds,
-                                               _bounds.origin.x +
-                                               _bounds.size.width -
-                                               (_bounds.size.height /
-                                                shiftSlope));
+                    (void)FPRectSetLeftAbs(&_bounds,
+                                           _bounds.origin.x +
+                                           _bounds.size.width -
+                                           (_bounds.size.height /
+                                            shiftSlope));
                     break;
                 default:
-                    assert(0); // TODO(adlr): need to support shift on middle
-                               // knobs
+                    // Shift-resize on a middle knob isn't implemented; ignore.
+                    break;
             }
-            assert(didFlip == NO);
         }
         
         [_docView setNeedsDisplayInRect:
@@ -458,7 +458,7 @@ const float knobSize = 6.0;
 // page coordinates that includes 1 screen-pixel thick border
 - (NSRect)pageRectForKnob:(int)knob isBoundRect:(BOOL)isBound
 {
-    NSPoint p;
+    NSPoint p = NSZeroPoint;
     switch (knob) {
         case UpperLeftKnob:
             p = NSMakePoint(NSMinX(_bounds),
@@ -493,7 +493,7 @@ const float knobSize = 6.0;
                             NSMinY(_bounds));
             break;
         default:
-            assert(0); // bad knob
+            FPCheck(NO, return NSZeroRect); // bad knob
     }
     NSPoint window_point = [_docView convertPoint:p fromPage:_page];
     NSRect knobRect = NSMakeRect(floorf(window_point.x)+0.5 -(knobSize/2.0)

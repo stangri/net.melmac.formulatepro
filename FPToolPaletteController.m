@@ -1,5 +1,6 @@
 #import "FPToolPaletteController.h"
 #import "FPDocumentWindow.h"
+#import "FPLogging.h"
 
 #import "FPRectangle.h"
 #import "FPEllipse.h"
@@ -79,8 +80,12 @@ static FPToolPaletteController *_sharedController;
         if ([b state] == NSControlStateValueOn)
             return i;
     }
-    assert(0);
-    return FPToolRectangle;
+    // No tool button is selected (shouldn't happen — palette nib starts with
+    // arrow on, and chooseTool: always sets one). Fall back to arrow rather
+    // than aborting; arrow is the safest tool because it doesn't create new
+    // graphics on click.
+    FPCheck(NO, {});
+    return FPToolArrow;
 }
 
 - (Class)classForCurrentTool

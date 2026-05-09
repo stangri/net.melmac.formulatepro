@@ -97,10 +97,9 @@ static NSString *MyDocToolbarIdentifierPreviousPage =
             }
             [_document_view setOverlayGraphicsFromArray:_tempOverlayGraphics];
             [_tempOverlayGraphics release];
+            _tempOverlayGraphics = nil;
         }
-	} else {
-        assert(0);
-    }
+	}
     
     // toolbar item views
     [_one_up_vs_two_up_vs_book retain];
@@ -189,7 +188,7 @@ static NSString *MyDocToolbarIdentifierPreviousPage =
     DLog(@"line %d\n", __LINE__);
     
 
-    NSError *errorData;
+    NSError *errorData = nil;
     NSData *ret =
         [NSPropertyListSerialization
          dataWithPropertyList:d
@@ -198,7 +197,6 @@ static NSString *MyDocToolbarIdentifierPreviousPage =
                         error:&errorData];
     if (nil == ret) {
         DLog(@"error: %@\n", errorData.localizedDescription);
-        [errorData release];
         return [NSData data];
     }
     return ret;
@@ -209,6 +207,15 @@ static NSString *MyDocToolbarIdentifierPreviousPage =
                error:(NSError **)outError
 {
     DLog(@"readFromData:%p ofType:%@\n", data, typeName);
+    // Revert can call this twice on the same instance — release prior values
+    // so they don't leak.
+    [_originalPDFData release];
+    _originalPDFData = nil;
+    [_tempOverlayGraphics release];
+    _tempOverlayGraphics = nil;
+    [_pdf_document release];
+    _pdf_document = nil;
+
     if ([typeName isEqualToString:@"PDF Document"]) {
         _originalPDFData = [data retain];
         [self setFileURL:nil];  // causes document to be "untitled" and otherwise
@@ -220,7 +227,14 @@ static NSString *MyDocToolbarIdentifierPreviousPage =
                                                       options:NSPropertyListMutableContainersAndLeaves
                                                        format:nil
                                                         error:nil];
-        assert(nil != dict);
+        if (nil == dict) {
+            if (outError)
+                *outError = [NSError errorWithDomain:@"info.adlr.FormulatePro.ErrorDomain"
+                                                code:2
+                                            userInfo:@{NSLocalizedDescriptionKey:
+                                                       @"The document could not be read."}];
+            return NO;
+        }
         // TODO(adlr): check for error, version, convert these keys to
         // constants
         _originalPDFData = [[dict objectForKey:@"originalPDFData"] retain];

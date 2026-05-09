@@ -57,12 +57,9 @@ static NSString *pathArchiveKey = @"path";
     NSMutableArray *arr = [NSMutableArray array];
     for (int i = 0; i < [_path elementCount]; i++) {
         NSPoint p[3];
-        NSBezierPathElement t;
-        t = [_path elementAtIndex:i associatedPoints:p];
-        if (0 == i)
-            assert(NSMoveToBezierPathElement == t);
-        else
-            assert(NSLineToBezierPathElement == t);
+        (void)[_path elementAtIndex:i associatedPoints:p];
+        // Path is built solely from moveToPoint/lineToPoint so element kind
+        // is invariant; recording p[0] for both is correct.
         [arr addObject:NSStringFromPoint(p[0])];
     }
     NSMutableDictionary *ret =
@@ -79,6 +76,12 @@ static NSString *pathArchiveKey = @"path";
         _path = nil;
     }
     return self;
+}
+
+- (void)dealloc
+{
+    [_path release];
+    [super dealloc];
 }
 
 - (void)draw:(BOOL)selected

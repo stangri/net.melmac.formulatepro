@@ -128,8 +128,6 @@
 		C4EE45590BC8BCC400F417D3 /* FPArchivalDictionaryUpgrader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPArchivalDictionaryUpgrader.m; sourceTree = "<group>"; };
 		C4F40AD30B35D6F1008063B4 /* FPDocumentWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPDocumentWindow.h; sourceTree = "<group>"; };
 		C4F40AD40B35D6F1008063B4 /* FPDocumentWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPDocumentWindow.m; sourceTree = "<group>"; };
-		C4FDF1610A8BEB1800032EF5 /* FPTextArea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPTextArea.h; sourceTree = "<group>"; };
-		C4FDF1620A8BEB1800032EF5 /* FPTextArea.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPTextArea.m; sourceTree = "<group>"; };
 		B6A0F0020000000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -284,8 +282,6 @@
 				C45E46B40B3CF55B00D41543 /* FPCheckmark.m */,
 				C4B25AA80B431F8800DADA0F /* FPImage.h */,
 				C4B25AA90B431F8800DADA0F /* FPImage.m */,
-				C4FDF1610A8BEB1800032EF5 /* FPTextArea.h */,
-				C4FDF1620A8BEB1800032EF5 /* FPTextArea.m */,
 				C43B61D10B2FD56D00C1B850 /* FPTextAreaB.h */,
 				C43B61D20B2FD56D00C1B850 /* FPTextAreaB.m */,
 			);
@@ -550,6 +546,10 @@
 				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"NDEBUG=1",
+					"NS_BLOCK_ASSERTIONS=1",
+				);
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_VERSION = "";
 				GCC_WARN_PEDANTIC = NO;

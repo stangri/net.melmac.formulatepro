@@ -645,7 +645,9 @@ static const float ZoomScaleFactor = 1.3;
                     for (int i = 0; i < [_overlayGraphics count]; i++) {
                         FPGraphic *gr = [_overlayGraphics objectAtIndex:i];
                         if ([_selectedGraphics containsObject:gr]) {
-                            [newGraphics addObject:[gr copy]];
+                            FPGraphic *copy = [gr copy];
+                            [newGraphics addObject:copy];
+                            [copy release];
                         }
                     }
                     assert([newGraphics count] == [_selectedGraphics count]);
@@ -795,6 +797,7 @@ static const float ZoomScaleFactor = 1.3;
                                              withImage:image];
 
     [_overlayGraphics addObject:img];
+    [img release];
     [self setNeedsDisplay:YES];
 }
 
@@ -897,9 +900,11 @@ static const float ZoomScaleFactor = 1.3;
 {
     [_overlayGraphics removeAllObjects];
     for (NSUInteger i = 0; i < [arr count]; i++) {
-        [_overlayGraphics addObject:
+        FPGraphic *g =
             [FPGraphic graphicFromArchivalDictionary:[arr objectAtIndex:i]
-                                      inDocumentView:self]];
+                                      inDocumentView:self];
+        if (g)
+            [_overlayGraphics addObject:g];
     }
 }
 
