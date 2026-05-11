@@ -10,6 +10,15 @@
 #import "FPArchivalDictionaryUpgrader.h"
 #import "FPLogging.h"
 
+static NSImage *FPSymbolOrImageNamed(NSString *symbolName, NSString *fallbackName) {
+    if (@available(macOS 11.0, *)) {
+        NSImage *symbol = [NSImage imageWithSystemSymbolName:symbolName
+                                    accessibilityDescription:nil];
+        if (symbol) return symbol;
+    }
+    return [NSImage imageNamed:fallbackName];
+}
+
 //static NSString *nativeDocumentFormat = @"FormulatePro Document";
 
 static NSString* MyDocToolbarIdentifier =
@@ -107,6 +116,29 @@ static NSString *MyDocToolbarIdentifierPreviousPage =
 
     [_single_vs_continuous retain];
     [_single_vs_continuous removeFromSuperview];
+
+    if (@available(macOS 11.0, *)) {
+        NSArray<NSString *> *upBookSymbols =
+            @[@"1.square", @"2.square", @"book"];
+        for (NSInteger i = 0;
+             i < [_one_up_vs_two_up_vs_book segmentCount] &&
+             i < (NSInteger)[upBookSymbols count]; i++) {
+            NSImage *img =
+                [NSImage imageWithSystemSymbolName:upBookSymbols[i]
+                          accessibilityDescription:nil];
+            if (img) [_one_up_vs_two_up_vs_book setImage:img forSegment:i];
+        }
+        NSArray<NSString *> *contSymbols =
+            @[@"square", @"square.stack"];
+        for (NSInteger i = 0;
+             i < [_single_vs_continuous segmentCount] &&
+             i < (NSInteger)[contSymbols count]; i++) {
+            NSImage *img =
+                [NSImage imageWithSystemSymbolName:contSymbols[i]
+                          accessibilityDescription:nil];
+            if (img) [_single_vs_continuous setImage:img forSegment:i];
+        }
+    }
     
 //    switch ([_pdf_view displayMode]) {
 //        case kPDFDisplaySinglePage:
@@ -426,7 +458,8 @@ static NSString *MyDocToolbarIdentifierPreviousPage =
         // localized, but you will likely want to localize many of the item's
         // properties 
         [toolbarItem setToolTip: @"Zoom In"];
-        [toolbarItem setImage: [NSImage imageNamed: @"viewmag+"]];
+        [toolbarItem setImage:
+            FPSymbolOrImageNamed(@"plus.magnifyingglass", @"viewmag+")];
         
         // Tell the item what message to send when it is clicked 
         [toolbarItem setTarget: self];
@@ -445,7 +478,8 @@ static NSString *MyDocToolbarIdentifierPreviousPage =
         // localized, but you will likely want to localize many of the item's
         // properties 
         [toolbarItem setToolTip: @"Zoom Out"];
-        [toolbarItem setImage: [NSImage imageNamed: @"viewmag-"]];
+        [toolbarItem setImage:
+            FPSymbolOrImageNamed(@"minus.magnifyingglass", @"viewmag-")];
         
         // Tell the item what message to send when it is clicked 
         [toolbarItem setTarget: self];
@@ -520,7 +554,8 @@ static NSString *MyDocToolbarIdentifierPreviousPage =
         // localized, but you will likely want to localize many of the item's
         // properties 
         [toolbarItem setToolTip: @"Next Page"];
-        [toolbarItem setImage: [NSImage imageNamed: @"next"]];
+        [toolbarItem setImage:
+            FPSymbolOrImageNamed(@"arrow.down", @"next")];
         
         // Tell the item what message to send when it is clicked 
         [toolbarItem setTarget: self];
@@ -539,7 +574,8 @@ static NSString *MyDocToolbarIdentifierPreviousPage =
         // localized, but you will likely want to localize many of the item's
         // properties
         [toolbarItem setToolTip: @"Previous Page"];
-        [toolbarItem setImage: [NSImage imageNamed: @"previous"]];
+        [toolbarItem setImage:
+            FPSymbolOrImageNamed(@"arrow.up", @"previous")];
         
         // Tell the item what message to send when it is clicked 
         [toolbarItem setTarget: self];

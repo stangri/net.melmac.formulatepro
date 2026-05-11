@@ -21,7 +21,32 @@ static FPToolPaletteController *_sharedController;
         [btn setRefusesFirstResponder:YES];
     }
 
+    [self applySystemSymbolImages];
+
     [(NSPanel *)[self window] setBecomesKeyOnlyIfNeeded:YES];
+}
+
+- (void)applySystemSymbolImages {
+    if (@available(macOS 11.0, *)) {
+        NSDictionary<NSValue *, NSString *> *map = @{
+            [NSValue valueWithNonretainedObject:arrowToolButton]:     @"cursorarrow",
+            [NSValue valueWithNonretainedObject:ellipseToolButton]:   @"circle",
+            [NSValue valueWithNonretainedObject:rectangleToolButton]: @"rectangle",
+            [NSValue valueWithNonretainedObject:squiggleToolButton]:  @"scribble.variable",
+            [NSValue valueWithNonretainedObject:textAreaToolButton]:  @"character.textbox",
+            [NSValue valueWithNonretainedObject:textFieldToolButton]: @"character.cursor.ibeam",
+            [NSValue valueWithNonretainedObject:checkmarkToolButton]: @"checkmark",
+            [NSValue valueWithNonretainedObject:stampToolButton]:     @"person",
+        };
+        for (NSValue *key in map) {
+            NSButton *btn = [key nonretainedObjectValue];
+            if (!btn) continue;
+            NSImage *img =
+                [NSImage imageWithSystemSymbolName:map[key]
+                          accessibilityDescription:nil];
+            if (img) [btn setImage:img];
+        }
+    }
 }
 
 - (void)awakeFromNib
