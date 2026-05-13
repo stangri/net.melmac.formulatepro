@@ -14,18 +14,6 @@ NSString *FPToolChosen = @"FPToolChosen";
 
 static FPToolPaletteController *_sharedController;
 
-- (void)windowDidLoad {
-    [super windowDidLoad];
-
-    for (NSButton *btn in _buttonArray) {
-        [btn setRefusesFirstResponder:YES];
-    }
-
-    [self applySystemSymbolImages];
-
-    [(NSPanel *)[self window] setBecomesKeyOnlyIfNeeded:YES];
-}
-
 - (void)applySystemSymbolImages {
     if (@available(macOS 11.0, *)) {
         NSDictionary<NSValue *, NSString *> *map = @{
@@ -65,6 +53,14 @@ static FPToolPaletteController *_sharedController;
                                  nil];
     [_buttonArray retain];
     assert([_buttonArray count] > 0);
+
+    for (NSButton *btn in _buttonArray) {
+        [btn setRefusesFirstResponder:YES];
+    }
+    // windowDidLoad isn't sent for controllers loaded as a top-level object
+    // from MainMenu.nib — the window outlet is already wired and no separate
+    // nib load happens. Symbol setup has to live here instead.
+    [self applySystemSymbolImages];
 
     _sharedController = self;
     _inQuickMove = NO;
