@@ -73,5 +73,7 @@
 	<string>NSApplication</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Originally by Andrew de los Reyes, 2006-2007. Distributed by Melmac Network. Released under GNU LGPL v2.1.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>
